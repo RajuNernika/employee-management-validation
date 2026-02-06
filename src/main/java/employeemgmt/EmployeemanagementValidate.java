@@ -144,7 +144,7 @@ public class Validate {
                     .body(payload)
                     .post(url);
 
-            if (response.getStatusCode() == 200) {
+            if (response.getStatusCode() == 201) {
                 // Parse response JSON
                 JSONObject responseJson = (JSONObject) new JSONParser().parse(response.body().asString());
 
@@ -152,6 +152,7 @@ public class Validate {
                 if (responseJson.get("firstName").equals("Alice") &&
                     responseJson.get("lastName").equals("Johnson")) {
                     // Optionally verify in database
+                    createdEntityId = ((Long) responseJson.get("id")).intValue();
                     if (checkEntityInDb(createdEntityId, "employees")) {
                         resultOutput.updateResult(1, desc, "Employee created and verified in database", expected, "Success", "", MARKS10);
                     }
