@@ -5,6 +5,8 @@ import io.restassured.response.Response;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinTable;
 import jakarta.validation.constraints.*;
 import org.json.JSONArray;
 import org.json.simple.JSONObject;
@@ -129,8 +131,8 @@ public class Validate {
     // === VALIDATION METHODS ===
     private static void validateAddEmployeeViaAPI() {
         String url = serviceBaseUrl + "/api/employees";
-        String desc = "Add employee via API";
-        String expected = "Employee should be added and verified in database";
+        String desc = "Create employee and verify in database";
+        String expected = "Employee should be created and verified in database";
 
         try {
             // Build request body as JSON string
@@ -151,7 +153,7 @@ public class Validate {
                     responseJson.get("lastName").equals("Johnson")) {
                     // Optionally verify in database
                     if (checkEntityInDb(createdEntityId, "employees")) {
-                        resultOutput.updateResult(1, desc, "Employee added successfully", expected, "Success", "", MARKS10);
+                        resultOutput.updateResult(1, desc, "Employee created and verified in database", expected, "Success", "", MARKS10);
                     }
                 } else {
                     resultOutput.updateResult(0, desc, "Field validation failed", expected, "Failed", "", MARKS10);
