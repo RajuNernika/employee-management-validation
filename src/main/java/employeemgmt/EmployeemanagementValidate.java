@@ -129,8 +129,8 @@ public class Validate {
     // === VALIDATION METHODS ===
     private static void validateAddEmployeeViaAPI() {
         String url = serviceBaseUrl + "/api/employees";
-        String desc = "Add employee via API";
-        String expected = "Create employee and verify in database";
+        String desc = "Create employee and verify in database";
+        String expected = "Employee should be created and verified in database";
 
         try {
             // Build request body as JSON string
@@ -144,18 +144,21 @@ public class Validate {
 
             if (response.getStatusCode() == 200) {
                 // Parse response JSON
-                JSONObject responseJson = (JSONObject) new JSONParser().parse(response.body().asString());
-
-                // Verify expected fields
-                if (responseJson.get("firstName").equals("Alice") &&
-                    responseJson.get("lastName").equals("Johnson")) {
-                    // Optionally verify in database
-                    createdEntityId = ((Long) responseJson.get("id")).intValue();
-                    if (checkEntityInDb(createdEntityId, "employees")) {
-                        resultOutput.updateResult(1, desc, "Employee created and verified in database", expected, "Success", "", MARKS10);
+                JSONArray jsonArray = new JSONArray(response.body().asString());
+                boolean found = false;
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    org.json.JSONObject obj = jsonArray.getJSONObject(i);
+                    if (obj.get("firstName").equals("Alice") && obj.get("lastName").equals("Johnson")) {
+                        found = true;
+                        createdEntityId = obj.getInt("id");
+                        break;
                     }
+                }
+
+                if (found && checkEntityInDb(createdEntityId, "employees")) {
+                    resultOutput.updateResult(1, desc, "Employee created and verified in database", expected, "Success", "", MARKS10);
                 } else {
-                    resultOutput.updateResult(0, desc, "Field validation failed", expected, "Failed", "", MARKS10);
+                    resultOutput.updateResult(0, desc, "Employee not found in response or database", expected, "Failed", "", MARKS10);
                 }
             } else {
                 resultOutput.updateResult(0, desc, "Actual: " + response.getStatusCode(), expected, "Failed", "", MARKS10);
